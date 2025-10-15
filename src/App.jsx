@@ -1,63 +1,87 @@
-import { useState } from 'react'
-import { Search, Send, Building2, MapPin, Globe, Phone, Mail, BarChart3, ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button.jsx'
-import { Input } from '@/components/ui/input.jsx'
-import { Badge } from '@/components/ui/badge.jsx'
-import { Card, CardContent } from '@/components/ui/card.jsx'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.jsx'
+import { useState } from "react";
+import {
+  Search,
+  Send,
+  Building2,
+  MapPin,
+  Globe,
+  Phone,
+  Mail,
+  BarChart3,
+  ChevronDown,
+} from "lucide-react";
+import { Button } from "@/components/ui/button.jsx";
+import { Input } from "@/components/ui/input.jsx";
+import { Badge } from "@/components/ui/badge.jsx";
+import { Card, CardContent } from "@/components/ui/card.jsx";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs.jsx";
 
 function App() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeTab, setActiveTab] = useState('notas')
-  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("notas");
+
   // Opções de Status e Cores, que mapeiam diretamente para as colunas
   const STATUS_OPTIONS = {
-    novos: { label: 'Novo', color: 'bg-gray-500' },
-    emContato: { label: 'Em Contato', color: 'bg-yellow-500' },
-    negociando: { label: 'Negociando', color: 'bg-red-500' },
-    ganhos: { label: 'Ganho', color: 'bg-green-500' },
-    perdidos: { label: 'Perdido', color: 'bg-red-700' }
-  }
+    novos: { label: "Novo", color: "bg-gray-500" },
+    emContato: { label: "Em Contato", color: "bg-yellow-500" },
+    negociando: { label: "Negociando", color: "bg-red-500" },
+    ganhos: { label: "Ganho", color: "bg-green-500" },
+    perdidos: { label: "Perdido", color: "bg-red-700" },
+  };
 
   const [leads, setLeads] = useState({
     novos: [
       {
-        id: 'lead-1',
-        nome: 'TRINDTECH LTDA',
-        cnpj: '71.673.990/0001-77',
-        endereco: 'São Paulo, SP',
-        site: 'trindtech.com.br',
-        telefone: '(11) 4444-5555',
-        email: 'contato@trindtech.com.br',
-        porte: 'Grande',
-        ramo: 'Comércio',
-        status: 'novos' // Status inicial mapeia para a coluna 'novos'
-      }
+        id: "lead-1",
+        nome: "TRINDTECH LTDA",
+        cnpj: "71.673.990/0001-77",
+        endereco: "São Paulo, SP",
+        site: "trindtech.com.br",
+        telefone: "(11) 4444-5555",
+        email: "contato@trindtech.com.br",
+        porte: "Grande",
+        ramo: "Comércio",
+        status: "novos", // Status inicial mapeia para a coluna 'novos'
+      },
     ],
     emContato: [],
     negociando: [],
     ganhos: [],
-    perdidos: []
-  })
+    perdidos: [],
+  });
 
   // --- Lógica de Movimentação do Card por Status ---
 
   const handleStatusChange = (leadId, newStatusColumnId, currentColumnId) => {
     // Garante que o ID da nova coluna é válido e diferente da atual
-    if (newStatusColumnId === currentColumnId || !leads.hasOwnProperty(newStatusColumnId)) return;
+    if (
+      newStatusColumnId === currentColumnId ||
+      // eslint-disable-next-line no-prototype-builtins
+      !leads.hasOwnProperty(newStatusColumnId)
+    )
+      return;
 
-    setLeads(prevLeads => {
+    setLeads((prevLeads) => {
       // 1. Encontra e remove o lead da coluna atual
-      const leadToMove = prevLeads[currentColumnId].find(lead => lead.id === leadId);
+      const leadToMove = prevLeads[currentColumnId].find(
+        (lead) => lead.id === leadId
+      );
 
       if (!leadToMove) return prevLeads;
 
-      const updatedSourceLeads = prevLeads[currentColumnId].filter(lead => lead.id !== leadId);
+      const updatedSourceLeads = prevLeads[currentColumnId].filter(
+        (lead) => lead.id !== leadId
+      );
 
       // 2. Atualiza o status do lead
-      const updatedLead = { 
-        ...leadToMove, 
-        status: newStatusColumnId, 
+      const updatedLead = {
+        ...leadToMove,
+        status: newStatusColumnId,
       };
 
       // 3. Adiciona o lead na nova coluna (target)
@@ -101,7 +125,9 @@ function App() {
                   }}
                   className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-[#3a3a3a] transition-colors"
                 >
-                  <span className={`w-2 h-2 rounded-full mr-2 ${option.color}`}></span>
+                  <span
+                    className={`w-2 h-2 rounded-full mr-2 ${option.color}`}
+                  ></span>
                   {option.label}
                 </button>
               ))}
@@ -114,16 +140,16 @@ function App() {
 
   const LeadCard = ({ lead, currentColumnId }) => {
     return (
-      <Card 
-        className="bg-[#1a1a1a] border-[#2a2a2a] hover:border-[#3a3a3a] transition-all duration-200 mb-4"
-      >
+      <Card className="bg-[#1a1a1a] border-[#2a2a2a] hover:border-[#3a3a3a] transition-all duration-200 mb-4">
         <CardContent className="p-4">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
               <Building2 className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-white font-semibold text-sm mb-1">{lead.nome}</h3>
+              <h3 className="text-white font-semibold text-sm mb-1">
+                {lead.nome}
+              </h3>
               {/* Dropdown interativo para mudar o status */}
               <StatusDropdown lead={lead} currentColumnId={currentColumnId} />
             </div>
@@ -143,9 +169,9 @@ function App() {
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <Globe className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="font-medium text-gray-500">Site</span>
-              <a 
-                href={`https://${lead.site}`} 
-                target="_blank" 
+              <a
+                href={`https://${lead.site}`}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-pink-500 hover:text-pink-400 transition-colors"
               >
@@ -176,13 +202,13 @@ function App() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
             <TabsList className="grid w-full grid-cols-2 bg-[#0f0f0f] border border-[#2a2a2a]">
-              <TabsTrigger 
+              <TabsTrigger
                 value="notas"
                 className="data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-500 text-gray-400"
               >
                 Notas
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="historico"
                 className="data-[state=active]:bg-pink-500/10 data-[state=active]:text-pink-500 text-gray-400"
               >
@@ -202,35 +228,42 @@ function App() {
           </Tabs>
         </CardContent>
       </Card>
-    )
-  }
+    );
+  };
 
   const KanbanColumn = ({ title, columnId, count, leads, emptyMessage }) => {
     return (
       <div className="flex-1 min-w-[280px]">
         <div className="mb-4">
           <h2 className="text-white font-semibold text-sm mb-1">{title}</h2>
-          <p className="text-gray-500 text-xs">{count} lead{count !== 1 ? 's' : ''}</p>
+          <p className="text-gray-500 text-xs">
+            {count} lead{count !== 1 ? "s" : ""}
+          </p>
         </div>
-        
-        <div 
-          className="bg-[#1a1a1a] p-3 rounded-lg border border-[#2a2a2a] min-h-[500px] flex flex-col transition-colors duration-200"
-        >
-            <div className="space-y-3 flex-grow">
-              {leads.length > 0 ? (
-                // Mapeia os cards, passando o ID da coluna atual (columnId)
-                leads.map(lead => <LeadCard key={lead.id} lead={lead} currentColumnId={columnId} />)
-              ) : (
-                <div className="flex items-center justify-center h-full pt-16">
-                  <p className="text-gray-500 text-sm text-center">{emptyMessage}</p>
-                </div>
-              )}
-            </div>
+
+        <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#2a2a2a] min-h-[500px] flex flex-col transition-colors duration-200">
+          <div className="space-y-3 flex-grow">
+            {leads.length > 0 ? (
+              // Mapeia os cards, passando o ID da coluna atual (columnId)
+              leads.map((lead) => (
+                <LeadCard
+                  key={lead.id}
+                  lead={lead}
+                  currentColumnId={columnId}
+                />
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full pt-16">
+                <p className="text-gray-500 text-sm text-center">
+                  {emptyMessage}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    )
-  }
-
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] dark">
@@ -248,7 +281,9 @@ function App() {
                 <span className="text-white">A</span>
                 <span className="text-pink-500">I</span>
               </h1>
-              <p className="text-gray-500 text-xs">Seu caderninho inteligente de prospecção</p>
+              <p className="text-gray-500 text-xs">
+                Seu caderninho inteligente de prospecção
+              </p>
             </div>
           </div>
         </div>
@@ -266,7 +301,7 @@ function App() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-11 pr-12 h-12 bg-[#1a1a1a] border-[#2a2a2a] text-white placeholder:text-gray-600 focus:border-pink-500/50 focus:ring-pink-500/20"
             />
-            <Button 
+            <Button
               size="icon"
               className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-br from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 w-8 h-8"
             >
@@ -278,44 +313,44 @@ function App() {
 
       {/* Kanban Board */}
       <main className="max-w-[1400px] mx-auto px-6 py-8">
-          <div className="flex gap-6 overflow-x-auto pb-4 items-start"> 
-            {/* O ID da coluna foi adicionado para uso na função de mudança de status */}
-            <KanbanColumn 
-              title="NOVOS" 
-              columnId="novos" 
-              count={leads.novos.length}
-              leads={leads.novos}
-              emptyMessage="Arraste leads aqui"
-            />
-            <KanbanColumn 
-              title="EM CONTATO" 
-              columnId="emContato" 
-              count={leads.emContato.length}
-              leads={leads.emContato}
-              emptyMessage="Arraste leads aqui"
-            />
-            <KanbanColumn 
-              title="NEGOCIANDO" 
-              columnId="negociando" 
-              count={leads.negociando.length}
-              leads={leads.negociando}
-              emptyMessage="Arraste leads aqui"
-            />
-            <KanbanColumn 
-              title="GANHOS" 
-              columnId="ganhos" 
-              count={leads.ganhos.length}
-              leads={leads.ganhos}
-              emptyMessage="Arraste leads aqui"
-            />
-             <KanbanColumn 
-              title="PERDIDOS" 
-              columnId="perdidos" 
-              count={leads.perdidos.length}
-              leads={leads.perdidos}
-              emptyMessage="Sem leads perdidos"
-            />
-          </div>
+        <div className="flex gap-6 overflow-x-auto pb-4 items-start">
+          {/* O ID da coluna foi adicionado para uso na função de mudança de status */}
+          <KanbanColumn
+            title="NOVOS"
+            columnId="novos"
+            count={leads.novos.length}
+            leads={leads.novos}
+            emptyMessage="Arraste leads aqui"
+          />
+          <KanbanColumn
+            title="EM CONTATO"
+            columnId="emContato"
+            count={leads.emContato.length}
+            leads={leads.emContato}
+            emptyMessage="Arraste leads aqui"
+          />
+          <KanbanColumn
+            title="NEGOCIANDO"
+            columnId="negociando"
+            count={leads.negociando.length}
+            leads={leads.negociando}
+            emptyMessage="Arraste leads aqui"
+          />
+          <KanbanColumn
+            title="GANHOS"
+            columnId="ganhos"
+            count={leads.ganhos.length}
+            leads={leads.ganhos}
+            emptyMessage="Arraste leads aqui"
+          />
+          <KanbanColumn
+            title="PERDIDOS"
+            columnId="perdidos"
+            count={leads.perdidos.length}
+            leads={leads.perdidos}
+            emptyMessage="Sem leads perdidos"
+          />
+        </div>
       </main>
 
       {/* Footer */}
@@ -329,7 +364,7 @@ function App() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
