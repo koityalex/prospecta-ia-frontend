@@ -1,21 +1,30 @@
 import { useState } from 'react'
-import { Search, Send, Building2, MapPin, Globe, Phone, Mail, BarChart3 } from 'lucide-react'
+import { Search, Send, Building2, MapPin, Globe, Phone, Mail, BarChart3, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button.jsx'
 import { Input } from '@/components/ui/input.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
 import { Card, CardContent } from '@/components/ui/card.jsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.jsx'
-import './App.css'
+// NOTA: Removida a importação './App.css' pois não foi fornecida 
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('notas')
+  
+  // Opções de Status e Cores, que mapeiam diretamente para as colunas
+  const STATUS_OPTIONS = {
+    novos: { label: 'Novo', color: 'bg-gray-500' },
+    emContato: { label: 'Em Contato', color: 'bg-yellow-500' },
+    negociando: { label: 'Negociando', color: 'bg-red-500' },
+    ganhos: { label: 'Ganho', color: 'bg-green-500' },
+    perdidos: { label: 'Perdido', color: 'bg-red-700' } // Novo Status
+  }
 
-  // Dados de exemplo para os leads
-  const leads = {
+  // Inicializando o estado de leads
+  const [leads, setLeads] = useState({
     novos: [
       {
-        id: 1,
+        id: 'lead-1', // ID ÚNICO necessário para a lógica
         nome: 'TRINDTECH LTDA',
         cnpj: '71.673.990/0001-77',
         endereco: 'São Paulo, SP',
@@ -24,15 +33,93 @@ function App() {
         email: 'contato@trindtech.com.br',
         porte: 'Grande',
         ramo: 'Comércio',
-        status: 'Novo'
+        status: 'novos' // Status deve usar o ID da Coluna
       }
     ],
     emContato: [],
     negociando: [],
-    ganhos: []
-  }
+    ganhos: [],
+    perdidos: [] // Nova Coluna
+  })
 
-  const LeadCard = ({ lead }) => (
+  // --- LÓGICA DE MOVIMENTAÇÃO DE STATUS ---
+  const handleStatusChange = (leadId, newStatusColumnId, currentColumnId) => {
+    if (newStatusColumnId === currentColumnId) return;
+
+    if (!leads[newStatusColumnId]) {
+      console.error(`Coluna de status "${newStatusColumnId}" não encontrada.`);
+      return;
+    }
+
+    setLeads(prevLeads => {
+      // 1. Encontra e remove o lead da coluna atual
+      const leadToMove = prevLeads[currentColumnId].find(lead => lead.id === leadId);
+
+      if (!leadToMove) return prevLeads;
+
+      const updatedSourceLeads = prevLeads[currentColumnId].filter(lead => lead.id !== leadId);
+
+      // 2. Atualiza o status do lead
+      const updatedLead = { 
+        ...leadToMove, 
+        status: newStatusColumnId, 
+      };
+
+      // 3. Adiciona o lead na nova coluna (no topo por padrão)
+      const updatedTargetLeads = [updatedLead, ...prevLeads[newStatusColumnId]];
+
+      return {
+        ...prevLeads,
+        [currentColumnId]: updatedSourceLeads,
+        [newStatusColumnId]: updatedTargetLeads,
+      };
+    });
+  };
+
+  // --- COMPONENTE DROP DOWN DE STATUS ---
+  const StatusDropdown = ({ lead, currentColumnId }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    // Busca o label correto, ou usa 'Novo' como fallback
+    const currentStatus = STATUS_OPTIONS[lead.status] || STATUS_OPTIONS.novos; 
+
+    return (
+      <div 
+        className="relative inline-block text-left z-10"
+      >
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          // Estilo que simula o badge com ícone dropdown
+          className="flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-md bg-gray-400/20 text-gray-300 hover:bg-gray-400/30 transition-colors"
+        >
+          {currentStatus.label}
+          <ChevronDown className="w-4 h-4 ml-0.5" />
+        </button>
+
+        {isOpen && (
+          <div className="origin-top-left absolute left-0 mt-2 w-40 rounded-lg shadow-xl bg-[#2a2a2a] ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <div className="py-1">
+              {Object.entries(STATUS_OPTIONS).map(([key, option]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    handleStatusChange(lead.id, key, currentColumnId);
+                    setIsOpen(false);
+                  }}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-[#3a3a3a] transition-colors"
+                >
+                  <span className={`w-2 h-2 rounded-full mr-2 ${option.color}`}></span>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+
+  const LeadCard = ({ lead, currentColumnId }) => (
     <Card className="bg-[#1a1a1a] border-[#2a2a2a] hover:border-[#3a3a3a] transition-all duration-200 mb-4">
       <CardContent className="p-4">
         <div className="flex items-start gap-3 mb-4">
@@ -41,12 +128,8 @@ function App() {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-white font-semibold text-sm mb-1">{lead.nome}</h3>
-            <Badge 
-              variant="secondary" 
-              className="bg-[#2a2a2a] text-gray-300 hover:bg-[#2a2a2a] text-xs px-2 py-0.5"
-            >
-              {lead.status}
-            </Badge>
+            {/* SUBSTITUIÇÃO: Badge estático pelo Dropdown */}
+            <StatusDropdown lead={lead} currentColumnId={currentColumnId} /> 
           </div>
         </div>
 
@@ -101,6 +184,7 @@ function App() {
           </div>
         </div>
 
+        {/* Retorna ao estilo antigo de Tabs, já que o novo estilo estava bugando */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-2 bg-[#0f0f0f] border border-[#2a2a2a]">
             <TabsTrigger 
@@ -131,20 +215,29 @@ function App() {
     </Card>
   )
 
-  const KanbanColumn = ({ title, count, leads, emptyMessage }) => (
+  const KanbanColumn = ({ title, columnId, count, leads, emptyMessage }) => (
     <div className="flex-1 min-w-[280px]">
       <div className="mb-4">
         <h2 className="text-white font-semibold text-sm mb-1">{title}</h2>
-        <p className="text-gray-500 text-xs">{count} lead{count !== 1 ? 's' : ''}</p>
+        <p className="text-gray-500 text-xs">{leads.length} lead{leads.length !== 1 ? 's' : ''}</p>
       </div>
-      <div className="space-y-3">
-        {leads.length > 0 ? (
-          leads.map(lead => <LeadCard key={lead.id} lead={lead} />)
-        ) : (
-          <div className="text-center py-12 px-4">
-            <p className="text-gray-500 text-sm">{emptyMessage}</p>
+      
+      {/* Container da Coluna: Adiciona fundo, borda e altura mínima para parecer um card */}
+      <div 
+        className="bg-[#1a1a1a] p-3 rounded-lg border border-[#2a2a2a] min-h-[500px] flex flex-col transition-colors duration-200"
+      >
+          <div className="space-y-3 flex-grow">
+            {leads.length > 0 ? (
+              // Mapeia os cards e passa o columnId
+              // NOTE: Passamos handleStatusChange implicitamente via currentColumnId
+              leads.map(lead => <LeadCard key={lead.id} lead={lead} currentColumnId={columnId} />)
+            ) : (
+              // Mensagem vazia centralizada vertical e horizontalmente
+              <div className="flex items-center justify-center h-full pt-16">
+                <p className="text-gray-500 text-sm text-center">{emptyMessage}</p>
+              </div>
+            )}
           </div>
-        )}
       </div>
     </div>
   )
@@ -159,7 +252,12 @@ function App() {
               <Building2 className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-white font-bold text-lg">TrindAI</h1>
+              <h1 className="text-white font-bold text-lg">
+                <span className="text-white">trin</span>
+                <span className="text-pink-500">d</span>
+                <span className="text-white">A</span>
+                <span className="text-pink-500">I</span>
+              </h1>
               <p className="text-gray-500 text-xs">Seu caderninho inteligente de prospecção</p>
             </div>
           </div>
@@ -190,45 +288,55 @@ function App() {
 
       {/* Kanban Board */}
       <main className="max-w-[1400px] mx-auto px-6 py-8">
+        {/* Filtros removidos para simplicidade */}
+
         <div className="flex gap-6 overflow-x-auto pb-4">
           <KanbanColumn 
             title="NOVOS" 
+            columnId="novos" // Adicionado columnId
             count={leads.novos.length}
             leads={leads.novos}
             emptyMessage="Arraste leads aqui"
           />
           <KanbanColumn 
             title="EM CONTATO" 
+            columnId="emContato" // Adicionado columnId
             count={leads.emContato.length}
             leads={leads.emContato}
             emptyMessage="Arraste leads aqui"
           />
           <KanbanColumn 
             title="NEGOCIANDO" 
+            columnId="negociando" // Adicionado columnId
             count={leads.negociando.length}
             leads={leads.negociando}
             emptyMessage="Arraste leads aqui"
           />
           <KanbanColumn 
             title="GANHOS" 
+            columnId="ganhos" // Adicionado columnId
             count={leads.ganhos.length}
             leads={leads.ganhos}
             emptyMessage="Arraste leads aqui"
           />
+          <KanbanColumn 
+            title="PERDIDOS" 
+            columnId="perdidos" // Adicionado columnId
+            count={leads.perdidos.length}
+            leads={leads.perdidos}
+            emptyMessage="Sem leads perdidos"
+          />
         </div>
       </main>
 
-         {/* Footer */}
+      {/* Footer */}
       <footer className="border-t border-[#1a1a1a] bg-[#0a0a0a] mt-12">
         <div className="max-w-[1400px] mx-auto px-6 py-4">
-          {/* Texto "Trindtech" substitui a logo e o crédito Lovable */}
           <p className="text-gray-600 text-xs text-right font-semibold">
-  <span className="text-white">Trin</span>
-  <span className="text-pink-500">dt</span>
-  <span className="text-white">ech</span>
-</p>
-
-As letras **Trin** e **ech** usam `text-white`, e as letras **dt** usam `text-pink-500`, replicando o estilo do logo.
+            <span className="text-white">Trin</span>
+            <span className="text-pink-500">dt</span>
+            <span className="text-white">ech</span>
+          </p>
         </div>
       </footer>
     </div>
