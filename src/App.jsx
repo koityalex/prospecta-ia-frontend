@@ -20,7 +20,6 @@ const API_URL = "http://localhost:3000/api";
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("notas");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
   const [error, setError] = useState(null);
@@ -507,21 +506,20 @@ function App() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="bg-[#0a0a0a] ">
       <header className="border-b border-[#1a1a1a] bg-[#0a0a0a] sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-red-500 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
               <Building2 className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-white font-bold text-lg">
-                <span className="text-white">Trin</span>
-                <span className="text-pink-500">dC</span>
-                <span className="text-white">onnect</span>
+                <span className="text-white">Trind</span>
+                <span className="text-red-500">Connect</span>
               </h1>
               <p className="text-gray-500 text-xs">
-                Seu caderninho inteligente de prospecção
+                Contatos que geram conexões
               </p>
             </div>
           </div>
@@ -551,7 +549,7 @@ function App() {
             <button
               onClick={handleSendMessage}
               disabled={isLoading || !searchQuery.trim()}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-br from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 w-8 h-8 rounded-md flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-br from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 w-8 h-8 rounded-md flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 text-white animate-spin" />
@@ -563,7 +561,7 @@ function App() {
         </div>
       </div>
 
-      <main className="max-w-[1400px] mx-auto px-6 py-8">
+      <main className="max-w-[1400px] mx-auto px-6 py-8 ">
         {isLoadingLeads ? (
           <div className="flex items-center justify-center h-64">
             <Loader2 className="w-8 h-8 text-pink-500 animate-spin" />
@@ -605,12 +603,16 @@ function App() {
       </main>
 
       <footer className="border-t border-[#1a1a1a] bg-[#0a0a0a] mt-12">
-        <div className="max-w-[1400px] mx-auto px-6 py-4">
-          <p className="text-gray-600 text-xs text-right font-semibold">
+        <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-end">
+          <a
+            className="text-gray-600 text-xs text-right font-semibold"
+            href="https://www.trindtech.com.br"
+            target="_blank"
+          >
             <span className="text-white">Trin</span>
-            <span className="text-pink-500">dt</span>
+            <span className="text-red-500">dt</span>
             <span className="text-white">ech</span>
-          </p>
+          </a>
         </div>
       </footer>
     </div>
